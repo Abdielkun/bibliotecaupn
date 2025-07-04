@@ -43,15 +43,13 @@ public class PrestamoController {
         }
         model.addAttribute("prestamos", prestamos);
         model.addAttribute("libros", libroService.obtenerTodosLosLibros());
-        
-        // Filtrar usuarios para excluir administradores
+
         List<Usuario> usuarios = usuarioService.obtenerTodosLosUsuarios().stream()
-                .filter(usuario -> !usuario.getRol().equals("ROLE_ADMIN")) // Cambiado a "ROLE_ADMIN"
+                .filter(usuario -> !usuario.getRol().equals("ROLE_ADMIN"))
                 .collect(Collectors.toList());
         model.addAttribute("usuarios", usuarios);
-        return "misPrestamos"; // Cambiado para apuntar a la vista correcta
+        return "misPrestamos";
     }
-
 
     @PostMapping("/guardar")
     public String guardarPrestamo(
@@ -101,13 +99,12 @@ public class PrestamoController {
         model.addAttribute("prestamo", prestamo);
         model.addAttribute("libros", libroService.obtenerTodosLosLibros());
 
-        // Filtrar usuarios para excluir administradores
         List<Usuario> usuarios = usuarioService.obtenerTodosLosUsuarios().stream()
-                .filter(usuario -> !usuario.getRol().equals("ADMIN")) // Cambia "ADMIN" por el rol que uses para los administradores
+                .filter(usuario -> !usuario.getRol().equals("ROLE_ADMIN"))
                 .collect(Collectors.toList());
         model.addAttribute("usuarios", usuarios);
 
-        return "editarPrestamo"; // Asegúrate de que esta vista esté configurada correctamente
+        return "editarPrestamo";
     }
 
     @PostMapping("/actualizar")
