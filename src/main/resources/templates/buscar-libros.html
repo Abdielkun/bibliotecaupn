@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestionar Libros | Biblioteca UPN</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/img/favicon/site.webmanifest">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables@1.13.4/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #003366;
+      --secondary-color: #FFC72C;
+      --dark-color: #1A1A1A;
+      --light-color: #F8F9FA;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #fd7e14;
+      --info-color: #17a2b8;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark-color);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background-color: white;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-header {
+      height: 80px;
+      padding: 20px;
+      background-color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .sidebar-header h4 {
+      color: white;
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+    
+    .nav-link {
+      color: var(--dark-color);
+      padding: 12px 25px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      background-color: rgba(0, 51, 102, 0.05);
+      color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+      border-left: 4px solid var(--secondary-color);
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      transition: all 0.3s;
+    }
+    
+    /* Header */
+    .header {
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .card-title {
+      font-weight: 600;
+      margin: 0;
+      color: var(--dark-color);
+    }
+    
+    /* Tables */
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table thead th {
+      background-color: var(--light-color);
+      border-bottom: 2px solid #eee;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(0, 0, 0, 0.01);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-warning {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--dark-color);
+    }
+    
+    /* Form Controls */
+    .form-control:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 199, 44, 0.25);
+    }
+    
+    .form-select:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 199, 44, 0.25);
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-280px);
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h4><i class="fas fa-book me-2"></i> Biblioteca UPN</h4>
+    </div>
+    <div class="sidebar-menu">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/prestamos}">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Gestión de Préstamos</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" th:href="@{/libros/buscar}">
+            <i class="fas fa-book-open"></i>
+            <span>Catálogo de Libros</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios">
+            <i class="fas fa-user-graduate"></i>
+            <span>Estudiantes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/reportes">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/configuracion">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <button class="btn btn-sm d-lg-none" id="sidebarToggle">
+          <i class="fas fa-bars text-dark"></i>
+        </button>
+        <h4 class="mb-0">Gestionar Libros</h4>
+        <small class="text-muted">Administra el catálogo de libros de la biblioteca</small>
+      </div>
+      
+      <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=003366&color=fff" alt="User">
+        <div>
+          <h6 class="mb-0">Administrador</h6>
+          <small class="text-muted">Bibliotecario</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="container-fluid p-4">
+      <!-- Alerts -->
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      
+      <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Search Card -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-search me-2"></i> Buscar Libros
+          </h5>
+        </div>
+        <div class="card-body">
+          <form th:action="@{/libros/buscar}" method="get">
+            <div class="row">
+              <div class="col-md-10">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Buscar por título o autor" 
+                         name="keyword" th:value="${keyword}" />
+                  <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search me-1"></i> Buscar
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <a th:href="@{/libros/buscar}" class="btn btn-outline-secondary w-100">
+                  <i class="fas fa-refresh me-1"></i> Ver Todos
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Add/Edit Book Form -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-plus me-2"></i> 
+            <span th:text="${libroForm.id != null ? 'Editar Libro' : 'Agregar Nuevo Libro'}">Agregar Nuevo Libro</span>
+          </h5>
+        </div>
+        <div class="card-body">
+          <form th:action="@{/libros/guardar}" method="post" th:object="${libroForm}">
+            <input type="hidden" th:field="*{id}" />
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="titulo" class="form-label">Título *</label>
+                  <input type="text" class="form-control" id="titulo" th:field="*{titulo}" 
+                         placeholder="Título del libro" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="autor" class="form-label">Autor *</label>
+                  <input type="text" class="form-control" id="autor" th:field="*{autor}" 
+                         placeholder="Autor del libro" required />
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="isbn" class="form-label">ISBN *</label>
+                  <input type="text" class="form-control" id="isbn" th:field="*{isbn}" 
+                         placeholder="ISBN del libro" required />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="editorial" class="form-label">Editorial</label>
+                  <input type="text" class="form-control" id="editorial" th:field="*{editorial}" 
+                         placeholder="Editorial" />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="disponible" class="form-label">Estado</label>
+                  <select class="form-select" id="disponible" th:field="*{disponible}">
+                    <option value="true">Disponible</option>
+                    <option value="false">No Disponible</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i> 
+                <span th:text="${libroForm.id != null ? 'Actualizar Libro' : 'Guardar Libro'}">Guardar Libro</span>
+              </button>
+              <button type="reset" class="btn btn-outline-secondary">
+                <i class="fas fa-undo me-1"></i> Limpiar
+              </button>
+              <a th:href="@{/libros/buscar}" class="btn btn-outline-danger" th:if="${libroForm.id != null}">
+                <i class="fas fa-times me-1"></i> Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Books List -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-book me-2"></i> Lista de Libros 
+            <span class="badge bg-primary ms-2" th:text="${#lists.size(libros)}">0</span>
+          </h5>
+        </div>
+        <div class="card-body">
+          <div th:if="${!#lists.isEmpty(libros)}">
+            <div class="table-responsive">
+              <table class="table table-striped" id="librosTable">
+                <thead>
+                  <tr>
+                    <th class="text-center">ID</th>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>ISBN</th>
+                    <th>Editorial</th>
+                    <th>Disponibilidad</th>
+                    <th class="text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="libro : ${libros}">
+                    <td class="text-center" th:text="${libro.id}">1</td>
+                    <td th:text="${libro.titulo}">Título</td>
+                    <td th:text="${libro.autor}">Autor</td>
+                    <td th:text="${libro.isbn}">ISBN</td>
+                    <td th:text="${libro.editorial ?: 'Sin editorial'}">Editorial</td>
+                    <td>
+                      <span th:class="${libro.disponible} ? 'badge bg-success' : 'badge bg-danger'" 
+                            th:text="${libro.disponible} ? 'Disponible' : 'No disponible'">Disponible</span>
+                    </td>
+                    <td class="text-center">
+                      <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                          <i class="far fa-eye"></i>
+                        </button>
+                        <a th:href="@{/libros/editar/{id}(id=${libro.id})}" class="btn btn-sm btn-outline-warning" title="Editar">
+                          <i class="far fa-edit"></i>
+                        </a>
+                        <a th:href="@{/libros/eliminar/{id}(id=${libro.id})}" class="btn btn-sm btn-outline-danger" 
+                           title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este libro?')">
+                          <i class="far fa-trash-alt"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Empty state -->
+          <div th:if="${#lists.isEmpty(libros)}" class="empty-state">
+            <i class="fas fa-book-open"></i>
+            <h5>No se encontraron libros</h5>
+            <p th:if="${keyword != null and !keyword.isEmpty()}" class="text-muted">
+              No hay libros que coincidan con "<strong th:text="${keyword}"></strong>"
+            </p>
+            <p th:if="${keyword == null or keyword.isEmpty()}" class="text-muted">
+              No hay libros registrados en el sistema
+            </p>
+            <a th:href="@{/}" class="btn btn-primary">
+              <i class="fas fa-arrow-left me-1"></i> Volver al Inicio
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.4/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    $(document).ready(function() {
+      // Toggle sidebar on mobile
+      $('#sidebarToggle').click(function() {
+        $('.sidebar').toggleClass('active');
+      });
+      
+      // Initialize DataTable if there are books
+      if ($('#librosTable tbody tr').length > 0) {
+        $('#librosTable').DataTable({
+          language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+          },
+          responsive: true,
+          pageLength: 10
+        });
+      }
+      
+      // Auto-hide alerts after 5 seconds
+      setTimeout(function() {
+        $('.alert').fadeOut('slow');
+      }, 5000);
+      
+      // Form validation
+      $('form').on('submit', function(e) {
+        var titulo = $('#titulo').val().trim();
+        var autor = $('#autor').val().trim();
+        var isbn = $('#isbn').val().trim();
+
+        if (!titulo || !autor || !isbn) {
+          e.preventDefault();
+          alert('Por favor, complete todos los campos obligatorios (*)');
+          return false;
+        }
+      });
+
+      // Clear form button
+      $('button[type="reset"]').on('click', function() {
+        setTimeout(function() {
+          $('#titulo').focus();
+        }, 100);
+      });
+    });
+  </script>
+</body>
+</html>

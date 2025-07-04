@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Libros | UPN</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/img/favicon/site.webmanifest">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #003366;
+      --secondary-color: #FFC72C;
+      --accent-color: #0066CC;
+      --dark-color: #1A1A1A;
+      --light-color: #F8F9FA;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #fd7e14;
+      --info-color: #17a2b8;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark-color);
+      min-height: 100vh;
+    }
+    
+    /* Navbar */
+    .navbar {
+      background: var(--primary-color) !important;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      padding: 1rem 0;
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white !important;
+      font-size: 1.5rem;
+    }
+    
+    .navbar-nav .nav-link {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-weight: 500;
+      margin: 0 0.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+      color: var(--secondary-color) !important;
+      transform: translateY(-1px);
+    }
+    
+    /* Search Section */
+    .search-section {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+      color: white;
+      padding: 3rem 0;
+      margin-bottom: 2rem;
+    }
+    
+    .search-box {
+      background: white;
+      border-radius: 50px;
+      padding: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .search-box .form-control {
+      border: none;
+      border-radius: 50px;
+      padding: 1rem 1.5rem;
+      font-size: 1.1rem;
+    }
+    
+    .search-box .btn {
+      border-radius: 50px;
+      padding: 1rem 2rem;
+      font-weight: 600;
+    }
+    
+    /* Cards */
+    .book-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      height: 100%;
+      border: 2px solid transparent;
+    }
+    
+    .book-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      border-color: var(--secondary-color);
+    }
+    
+    .book-cover {
+      height: 250px;
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .book-info {
+      padding: 1.5rem;
+    }
+    
+    .book-title {
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+      line-height: 1.3;
+      height: 2.6rem;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    
+    .book-author {
+      color: #6c757d;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .book-isbn {
+      color: #8e9aaf;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .book-status {
+      margin-bottom: 1rem;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 5rem;
+      margin-bottom: 2rem;
+      opacity: 0.3;
+    }
+    
+    /* Footer */
+    .footer {
+      background: var(--primary-color);
+      color: white;
+      padding: 3rem 0 2rem;
+      margin-top: 4rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .book-cover {
+        height: 200px;
+        font-size: 3rem;
+      }
+      
+      .search-section {
+        padding: 2rem 0;
+      }
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .slide-up {
+      animation: slideUp 0.8s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-graduation-cap me-2"></i>
+        Biblioteca UPN
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/usuario/dashboard}">
+              <i class="fas fa-home me-1"></i> Inicio
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" th:href="@{/usuario/catalogo}">
+              <i class="fas fa-book me-1"></i> Catálogo
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/usuario/mis-prestamos}">
+              <i class="fas fa-bookmark me-1"></i> Mis Préstamos
+            </a>
+          </li>
+        </ul>
+        
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle me-1"></i>
+              <span th:text="${usuario.nombre}">Usuario</span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" th:href="@{/usuario/perfil}">
+                <i class="fas fa-user me-2"></i> Mi Perfil
+              </a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" th:href="@{/logout}">
+                <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+              </a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Search Section -->
+  <section class="search-section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="text-center mb-4">
+            <h1 class="display-5 fw-bold mb-3">Catálogo de Libros</h1>
+            <p class="lead">Descubre y solicita los libros que necesitas para tu formación académica</p>
+          </div>
+          
+          <form th:action="@{/usuario/catalogo}" method="get">
+            <div class="search-box">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Buscar por título, autor o ISBN..." 
+                       name="buscar" th:value="${buscar}" />
+                <button class="btn btn-primary" type="submit">
+                  <i class="fas fa-search me-2"></i> Buscar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Alerts -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      <span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-2"></i>
+      <span th:text="${success}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar fade-in">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="stat-item">
+            <div class="stat-number" th:text="${totalLibros}">0</div>
+            <div class="stat-label">Total de Libros</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-item">
+            <div class="stat-number" th:text="${librosDisponibles}">0</div>
+            <div class="stat-label">Libros Disponibles</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-item">
+            <div class="stat-number" th:text="${totalLibros - librosDisponibles}">0</div>
+            <div class="stat-label">Libros Prestados</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-buttons text-center fade-in">
+      <button class="filter-btn active" onclick="filterBooks('all')">
+        <i class="fas fa-list me-1"></i> Todos
+      </button>
+      <button class="filter-btn" onclick="filterBooks('available')">
+        <i class="fas fa-check-circle me-1"></i> Disponibles
+      </button>
+      <button class="filter-btn" onclick="filterBooks('unavailable')">
+        <i class="fas fa-times-circle me-1"></i> No Disponibles
+      </button>
+    </div>
+
+    <!-- Books Grid -->
+    <div th:if="${!#lists.isEmpty(libros)}">
+      <div class="row" id="booksContainer">
+        <div th:each="libro : ${libros}" class="col-lg-3 col-md-4 col-sm-6 mb-4 book-item slide-up" 
+             th:data-available="${libro.disponible}">
+          <div class="book-card">
+            <div class="book-cover">
+              <i class="fas fa-book"></i>
+            </div>
+            <div class="book-info">
+              <div class="book-title" th:text="${libro.titulo}">Título del Libro</div>
+              <div class="book-author">
+                <i class="fas fa-user me-1"></i>
+                <span th:text="${libro.autor}">Autor</span>
+              </div>
+              <div class="book-isbn">
+                <i class="fas fa-barcode me-1"></i>
+                <span th:text="${libro.isbn}">ISBN</span>
+              </div>
+              <div class="book-status">
+                <span th:if="${libro.disponible}" class="badge bg-success">
+                  <i class="fas fa-check me-1"></i> Disponible
+                </span>
+                <span th:if="${!libro.disponible}" class="badge bg-danger">
+                  <i class="fas fa-times me-1"></i> No Disponible
+                </span>
+              </div>
+              <div class="d-grid">
+                <form th:action="@{/usuario/solicitar-prestamo/{libroId}(libroId=${libro.id})}" method="post">
+                  <button th:if="${libro.disponible}" type="submit" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i> Solicitar Préstamo
+                  </button>
+                </form>
+                <button th:if="${!libro.disponible}" class="btn btn-secondary" disabled>
+                  <i class="fas fa-clock me-1"></i> No Disponible
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(libros)}" class="empty-state fade-in">
+      <i class="fas fa-search"></i>
+      <h3>No se encontraron libros</h3>
+      <p th:if="${buscar != null and !buscar.isEmpty()}" class="mb-4">
+        No hay libros que coincidan con "<strong th:text="${buscar}"></strong>"
+      </p>
+      <p th:if="${buscar == null or buscar.isEmpty()}" class="mb-4">
+        No hay libros registrados en el sistema
+      </p>
+      <a th:href="@{/usuario/catalogo}" class="btn btn-primary">
+        <i class="fas fa-refresh me-2"></i> Ver Todos los Libros
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>Biblioteca Virtual UPN</h5>
+          <p class="mb-0">Universidad Privada del Norte - Sede Chorrillos</p>
+          <small class="text-muted">Tu conocimiento, nuestra pasión</small>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="mb-0">
+            <i class="fas fa-envelope me-2"></i> biblioteca@upn.edu.pe
+          </p>
+          <p class="mb-0">
+            <i class="fas fa-phone me-2"></i> (01) 315-9600
+          </p>
+          <small class="text-muted">© 2025 Universidad Privada del Norte</small>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    $(document).ready(function() {
+      // Auto-hide alerts after 5 seconds
+      setTimeout(function() {
+        $('.alert').fadeOut('slow');
+      }, 5000);
+      
+      // Add staggered animation to book cards
+      $('.slide-up').each(function(index) {
+        $(this).css('animation-delay', (index * 0.05) + 's');
+      });
+    });
+
+    function filterBooks(filter) {
+      // Update active button
+      $('.filter-btn').removeClass('active');
+      event.target.classList.add('active');
+      
+      // Filter books
+      const books = $('.book-item');
+      
+      books.hide().removeClass('slide-up');
+      
+      setTimeout(function() {
+        if (filter === 'all') {
+          books.show().addClass('slide-up');
+        } else if (filter === 'available') {
+          books.filter('[data-available="true"]').show().addClass('slide-up');
+        } else if (filter === 'unavailable') {
+          books.filter('[data-available="false"]').show().addClass('slide-up');
+        }
+        
+        // Re-apply staggered animation
+        $('.slide-up:visible').each(function(index) {
+          $(this).css('animation-delay', (index * 0.05) + 's');
+        });
+      }, 100);
+    }
+  </script>
+</body>
+</html>

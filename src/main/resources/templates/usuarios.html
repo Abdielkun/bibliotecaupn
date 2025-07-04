@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionar Usuarios | Biblioteca UPN</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/img/favicon/site.webmanifest">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables@1.13.4/css/dataTables.bootstrap5.min.css">
+
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #003366;
+      --secondary-color: #FFC72C;
+      --dark-color: #1A1A1A;
+      --light-color: #F8F9FA;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #fd7e14;
+      --info-color: #17a2b8;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark-color);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background-color: white;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-header {
+      height: 80px;
+      padding: 20px;
+      background-color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .sidebar-header h4 {
+      color: white;
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+    
+    .nav-link {
+      color: var(--dark-color);
+      padding: 12px 25px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      background-color: rgba(0, 51, 102, 0.05);
+      color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+      border-left: 4px solid var(--secondary-color);
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      transition: all 0.3s;
+    }
+    
+    /* Header */
+    .header {
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .card-title {
+      font-weight: 600;
+      margin: 0;
+      color: var(--dark-color);
+    }
+    
+    /* Tables */
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table thead th {
+      background-color: var(--light-color);
+      border-bottom: 2px solid #eee;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(0, 0, 0, 0.01);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-warning {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--dark-color);
+    }
+    
+    /* Form Controls */
+    .form-control:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 199, 44, 0.25);
+    }
+    
+    .form-select:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 199, 44, 0.25);
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-280px);
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h4><i class="fas fa-book me-2"></i> Biblioteca UPN</h4>
+    </div>
+    <div class="sidebar-menu">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/prestamos}">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Gestión de Préstamos</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/libros/buscar}">
+            <i class="fas fa-book-open"></i>
+            <span>Catálogo de Libros</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/usuarios">
+            <i class="fas fa-user-graduate"></i>
+            <span>Estudiantes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/reportes">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/configuracion">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <button class="btn btn-sm d-lg-none" id="sidebarToggle">
+          <i class="fas fa-bars text-dark"></i>
+        </button>
+        <h4 class="mb-0">Gestionar Usuarios</h4>
+        <small class="text-muted">Administra los usuarios del sistema de biblioteca</small>
+      </div>
+      
+      <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=003366&color=fff" alt="User">
+        <div>
+          <h6 class="mb-0">Administrador</h6>
+          <small class="text-muted">Bibliotecario</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="container-fluid p-4">
+      <!-- Alerts -->
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      
+      <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Add/Edit User Form -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-user-plus me-2"></i> 
+            <span th:text="${usuarioForm.id != null ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}">Agregar Nuevo Usuario</span>
+          </h5>
+        </div>
+        <div class="card-body">
+          <form th:action="@{/usuarios/guardar}" method="post" th:object="${usuarioForm}">
+            <input type="hidden" th:field="*{id}" />
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="nombre" class="form-label">Nombre Completo *</label>
+                  <input type="text" class="form-control" id="nombre" th:field="*{nombre}" 
+                         placeholder="Nombre completo del usuario" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="email" class="form-label">Correo Electrónico *</label>
+                  <input type="email" class="form-control" id="email" th:field="*{email}" 
+                         placeholder="correo@ejemplo.com" required />
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="username" class="form-label">Nombre de Usuario *</label>
+                  <input type="text" class="form-control" id="username" th:field="*{username}" 
+                         placeholder="Nombre de usuario único" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="password" class="form-label">
+                    <span th:text="${usuarioForm.id != null ? 'Nueva Contraseña (opcional)' : 'Contraseña *'}">Contraseña *</span>
+                  </label>
+                  <input type="password" class="form-control" id="password" th:field="*{password}" 
+                         placeholder="Contraseña del usuario" th:required="${usuarioForm.id == null}" />
+                  <div class="form-text" th:if="${usuarioForm.id != null}">
+                    Deje en blanco para mantener la contraseña actual
+                  </div>
+                </div>
+              </div>
+            </div>
+			<div class="mb-3">
+			  <label for="rol" class="form-label">Rol del Usuario *</label>
+			  <select class="form-select" id="rol" th:field="*{rol}" required>
+			    <option value="">Seleccione un rol</option>
+			    <option value="ROLE_USER" th:selected="${usuarioForm.rol == 'ROLE_USER'}">Usuario</option>
+			    <option value="ROLE_ADMIN" th:selected="${usuarioForm.rol == 'ROLE_ADMIN'}">Administrador</option>
+			  </select>
+			</div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i> 
+                <span th:text="${usuarioForm.id != null ? 'Actualizar Usuario' : 'Guardar Usuario'}">Guardar Usuario</span>
+              </button>
+              <button type="reset" class="btn btn-outline-secondary">
+                <i class="fas fa-undo me-1"></i> Limpiar
+              </button>
+              <a th:href="@{/usuarios}" class="btn btn-outline-danger" th:if="${usuarioForm.id != null}">
+                <i class="fas fa-times me-1"></i> Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Users List -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-users me-2"></i> Lista de Usuarios 
+            <span class="badge bg-primary ms-2" th:text="${#lists.size(usuarios)}">0</span>
+          </h5>
+        </div>
+        <div class="card-body">
+          <div th:if="${!#lists.isEmpty(usuarios)}">
+            <div class="table-responsive">
+              <table class="table table-striped" id="usuariosTable">
+                <thead>
+                  <tr>
+                    <th class="text-center">ID</th>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th class="text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="usuario : ${usuarios}">
+                    <td class="text-center" th:text="${usuario.id}">1</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="me-3">
+                          <div style="width: 35px; height: 35px; background-color: #FFC72C; color: #003366; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">
+                            <span th:text="${#strings.substring(usuario.nombre ?: 'U', 0, 1)}">U</span>
+                          </div>
+                        </div>
+                        <div>
+                          <strong th:text="${usuario.nombre}">Nombre</strong>
+                        </div>
+                      </div>
+                    </td>
+                    <td th:text="${usuario.username}">Username</td>
+                    <td th:text="${usuario.email}">Email</td>
+                    <td>
+                      <span th:class="${usuario.rol == 'ROLE_ADMIN'} ? 'badge bg-danger' : 'badge bg-primary'" 
+                            th:text="${usuario.rol == 'ROLE_ADMIN'} ? 'Administrador' : 'Usuario'">Rol</span>
+                    </td>
+                    <td class="text-center">
+                      <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                          <i class="far fa-eye"></i>
+                        </button>
+                        <a th:href="@{/usuarios/editar/{id}(id=${usuario.id})}" class="btn btn-sm btn-outline-warning" title="Editar">
+                          <i class="far fa-edit"></i>
+                        </a>
+                        <a th:href="@{/usuarios/eliminar/{id}(id=${usuario.id})}" class="btn btn-sm btn-outline-danger" 
+                           title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este usuario?')">
+                          <i class="far fa-trash-alt"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Empty state -->
+          <div th:if="${#lists.isEmpty(usuarios)}" class="empty-state">
+            <i class="fas fa-users"></i>
+            <h5>No hay usuarios registrados</h5>
+            <p class="text-muted">Agregue el primer usuario usando el formulario de arriba</p>
+            <button class="btn btn-primary" onclick="document.getElementById('nombre').focus()">
+              <i class="fas fa-user-plus me-1"></i> Agregar Primer Usuario
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    $(document).ready(function() {
+      // Toggle sidebar on mobile
+      $('#sidebarToggle').click(function() {
+        $('.sidebar').toggleClass('active');
+      });
+      
+      // Initialize DataTable if there are users
+      if ($('#usuariosTable tbody tr').length > 0) {
+        $('#usuariosTable').DataTable({
+          language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+          },
+          responsive: true,
+          pageLength: 10
+        });
+      }
+      
+      // Auto-hide alerts after 5 seconds
+      setTimeout(function() {
+        $('.alert').fadeOut('slow');
+      }, 5000);
+      
+      // Form validation
+      $('form').on('submit', function(e) {
+        var nombre = $('#nombre').val().trim();
+        var email = $('#email').val().trim();
+        var username = $('#username').val().trim();
+        var password = $('#password').val();
+        var isEditing = $('input[name="id"]').val();
+
+        if (!nombre || !email || !username) {
+          e.preventDefault();
+          alert('Por favor, complete todos los campos obligatorios');
+          return false;
+        }
+
+        if (!isEditing && !password) {
+          e.preventDefault();
+          alert('La contraseña es obligatoria para nuevos usuarios');
+          return false;
+        }
+
+        // Validate email format
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          e.preventDefault();
+          alert('Por favor, ingrese un correo electrónico válido');
+          return false;
+        }
+
+        // Validate username
+        if (username.length < 3) {
+          e.preventDefault();
+          alert('El nombre de usuario debe tener al menos 3 caracteres');
+          return false;
+        }
+      });
+
+      // Clear form button
+      $('button[type="reset"]').on('click', function() {
+        setTimeout(function() {
+          $('#nombre').focus();
+        }, 100);
+      });
+    });
+  </script>
+</body>
+</html>

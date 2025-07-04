@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca UPN - Panel de Administración</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/img/favicon/site.webmanifest">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables@1.13.4/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #003366; /* Azul corporativo */
+      --secondary-color: #FFC72C; /* Amarillo institucional */
+      --dark-color: #1A1A1A;
+      --light-color: #F8F9FA;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #fd7e14;
+      --info-color: #17a2b8;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark-color);
+    }
+    
+    /* Navbar */
+    .navbar {
+      background-color: var(--primary-color);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white !important;
+    }
+    
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background-color: white;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-header {
+      height: 80px;
+      padding: 20px;
+      background-color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .sidebar-header h4 {
+      color: white;
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+    
+    .nav-link {
+      color: var(--dark-color);
+      padding: 12px 25px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      background-color: rgba(0, 51, 102, 0.05);
+      color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+      border-left: 4px solid var(--secondary-color);
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      transition: all 0.3s;
+    }
+    
+    /* Header */
+    .header {
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .card-title {
+      font-weight: 600;
+      margin: 0;
+      color: var(--dark-color);
+    }
+    
+    /* Tables */
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table thead th {
+      background-color: var(--light-color);
+      border-bottom: 2px solid #eee;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(0, 0, 0, 0.01);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-warning {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--dark-color);
+    }
+    
+    /* Stats Cards */
+    .stats-card {
+      transition: transform 0.2s;
+    }
+    
+    .stats-card:hover {
+      transform: translateY(-2px);
+    }
+    
+    /* Activity Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--secondary-color);
+    }
+    
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 20px;
+      width: 12px;
+      height: 12px;
+      background: var(--secondary-color);
+      border-radius: 50%;
+      border: 3px solid white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-280px);
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h4><i class="fas fa-book me-2"></i> Biblioteca UPN</h4>
+    </div>
+    <div class="sidebar-menu">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link active" th:href="@{/}">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/prestamos}">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Gestión de Préstamos</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/libros/buscar}">
+            <i class="fas fa-book-open"></i>
+            <span>Catálogo de Libros</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios">
+            <i class="fas fa-user-graduate"></i>
+            <span>Estudiantes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/reportes">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/configuracion">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <button class="btn btn-sm d-lg-none" id="sidebarToggle">
+          <i class="fas fa-bars text-dark"></i>
+        </button>
+        <h4 class="mb-0">Panel de Administración</h4>
+        <small class="text-muted">Universidad Privada del Norte - Chorrillos</small>
+      </div>
+      
+      <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=003366&color=fff" alt="User">
+        <div>
+          <h6 class="mb-0">Administrador</h6>
+          <small class="text-muted">Bibliotecario</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="container-fluid p-4">
+      <!-- Alerts -->
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      
+      <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0 text-muted">Libros Registrados</h6>
+                  <h3 class="mb-0" th:text="${totalLibros ?: '0'}">0</h3>
+                </div>
+                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                  <i class="fas fa-book text-primary"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0 text-muted">Préstamos Activos</h6>
+                  <h3 class="mb-0" th:text="${prestamosActivos ?: '0'}">0</h3>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded">
+                  <i class="fas fa-exchange-alt text-success"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0 text-muted">Usuarios Registrados</h6>
+                  <h3 class="mb-0" th:text="${usuariosActivos ?: '0'}">0</h3>
+                </div>
+                <div class="bg-info bg-opacity-10 p-3 rounded">
+                  <i class="fas fa-users text-info"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0 text-muted">Libros Disponibles</h6>
+                  <h3 class="mb-0" th:text="${librosDisponibles ?: '0'}">0</h3>
+                </div>
+                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                  <i class="fas fa-check-circle text-warning"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Row -->
+      <div class="row">
+        <!-- Libros Disponibles -->
+        <div class="col-lg-8">
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-book me-2"></i> Últimos Libros Disponibles
+              </h5>
+              <div>
+                <a th:href="@{/libros/buscar}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-plus me-1"></i> Gestionar Libros
+                </a>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <div th:if="${!#lists.isEmpty(libros)}">
+                <div class="table-responsive">
+                  <table class="table table-striped" id="librosTable">
+                    <thead>
+                      <tr>
+                        <th class="text-center">ID</th>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>ISBN</th>
+                        <th>Editorial</th>
+                        <th>Disponibilidad</th>
+                        <th class="text-center">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr th:each="libro, iterStat : ${libros}" th:if="${iterStat.index < 10}">
+                        <td class="text-center" th:text="${libro.id}">101</td>
+                        <td th:text="${libro.titulo}">Título del libro</td>
+                        <td th:text="${libro.autor}">Autor</td>
+                        <td th:text="${libro.isbn}">ISBN</td>
+                        <td th:text="${libro.editorial ?: 'Sin editorial'}">Editorial</td>
+                        <td>
+                          <span th:class="${libro.disponible} ? 'badge bg-success' : 'badge bg-danger'" 
+                                th:text="${libro.disponible} ? 'Disponible' : 'No disponible'">Disponible</span>
+                        </td>
+                        <td class="text-center">
+                          <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                              <i class="far fa-eye"></i>
+                            </button>
+                            <a th:href="@{/libros/editar/{id}(id=${libro.id})}" class="btn btn-sm btn-outline-warning" title="Editar">
+                              <i class="far fa-edit"></i>
+                            </a>
+                            <a th:href="@{/libros/eliminar/{id}(id=${libro.id})}" class="btn btn-sm btn-outline-danger" 
+                               title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este libro?')">
+                              <i class="far fa-trash-alt"></i>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div class="text-center mt-3" th:if="${#lists.size(libros) > 10}">
+                  <a th:href="@{/libros/buscar}" class="btn btn-outline-primary">
+                    Ver todos los libros (<span th:text="${#lists.size(libros)}">0</span>)
+                  </a>
+                </div>
+              </div>
+              
+              <!-- Empty state for books -->
+              <div th:if="${#lists.isEmpty(libros)}" class="empty-state">
+                <i class="fas fa-book-open"></i>
+                <h5>No hay libros registrados</h5>
+                <p class="text-muted">Comience agregando libros al catálogo de la biblioteca</p>
+                <a th:href="@{/libros/buscar}" class="btn btn-primary">
+                  <i class="fas fa-plus me-1"></i> Agregar Primer Libro
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Activity Panel -->
+        <div class="col-lg-4">
+          <!-- Recent Activity -->
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-clock me-2"></i> Actividad Reciente
+              </h5>
+            </div>
+            <div class="card-body">
+              <div th:if="${!#lists.isEmpty(prestamos)}" class="timeline">
+                <div th:each="prestamo, iterStat : ${prestamos}" th:if="${iterStat.index < 5}" class="timeline-item">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 class="mb-1">Nuevo préstamo</h6>
+                      <p class="mb-1 text-muted small">
+                        <strong th:text="${prestamo.libro.titulo}">Libro</strong> 
+                        prestado a <strong th:text="${prestamo.usuario.nombre}">Usuario</strong>
+                      </p>
+                      <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        <span th:text="${prestamo.fechaPrestamoStr ?: prestamo.fechaPrestamo}">Fecha</span>
+                      </small>
+                    </div>
+                    <span class="badge bg-primary">Nuevo</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Empty state for activity -->
+              <div th:if="${#lists.isEmpty(prestamos)}" class="empty-state">
+                <i class="fas fa-clock"></i>
+                <h6>No hay actividad reciente</h6>
+                <p class="text-muted small">Los préstamos aparecerán aquí</p>
+                <a th:href="@{/prestamos}" class="btn btn-sm btn-outline-primary">
+                  Ver Préstamos
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Stats -->
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2"></i> Resumen Rápido
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-6 mb-3">
+                  <div class="border-end">
+                    <h4 class="text-primary mb-0" th:text="${totalLibros ?: '0'}">0</h4>
+                    <small class="text-muted">Total Libros</small>
+                  </div>
+                </div>
+                <div class="col-6 mb-3">
+                  <h4 class="text-success mb-0" th:text="${librosDisponibles ?: '0'}">0</h4>
+                  <small class="text-muted">Disponibles</small>
+                </div>
+                <div class="col-6">
+                  <div class="border-end">
+                    <h4 class="text-info mb-0" th:text="${usuariosActivos ?: '0'}">0</h4>
+                    <small class="text-muted">Usuarios</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <h4 class="text-warning mb-0" th:text="${prestamosActivos ?: '0'}">0</h4>
+                  <small class="text-muted">Préstamos</small>
+                </div>
+              </div>
+              
+              <!-- Progress bar -->
+              <div class="mt-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <small>Disponibilidad</small>
+                  <small th:text="${totalLibros > 0 ? (librosDisponibles * 100 / totalLibros) + '%' : '0%'}">0%</small>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-success" role="progressbar" 
+                       th:style="'width: ' + ${totalLibros > 0 ? (librosDisponibles * 100 / totalLibros) : 0} + '%'">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Actions -->
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-bolt me-2"></i> Acciones Rápidas
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a th:href="@{/libros/buscar}" class="btn btn-outline-primary">
+                  <i class="fas fa-book me-2"></i> Gestionar Libros
+                </a>
+                <a th:href="@{/prestamos}" class="btn btn-outline-success">
+                  <i class="fas fa-exchange-alt me-2"></i> Nuevo Préstamo
+                </a>
+                <a href="/usuarios" class="btn btn-outline-info">
+                  <i class="fas fa-user-plus me-2"></i> Gestionar Usuarios
+                </a>
+                <a href="/reportes" class="btn btn-outline-warning">
+                  <i class="fas fa-chart-bar me-2"></i> Ver Reportes
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.4/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    $(document).ready(function() {
+      // Toggle sidebar on mobile
+      $('#sidebarToggle').click(function() {
+        $('.sidebar').toggleClass('active');
+      });
+      
+      // Initialize DataTable if there are books
+      if ($('#librosTable tbody tr').length > 0) {
+        $('#librosTable').DataTable({
+          language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+          },
+          responsive: true,
+          pageLength: 5,
+          lengthChange: false,
+          searching: false,
+          info: false,
+          paging: false
+        });
+      }
+      
+      // Auto-hide alerts after 5 seconds
+      setTimeout(function() {
+        $('.alert').fadeOut('slow');
+      }, 5000);
+      
+      // Add hover effects to stats cards
+      $('.stats-card').hover(
+        function() {
+          $(this).addClass('shadow-lg');
+        },
+        function() {
+          $(this).removeClass('shadow-lg');
+        }
+      );
+    });
+  </script>
+</body>
+</html>

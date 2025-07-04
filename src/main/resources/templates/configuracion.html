@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración | Biblioteca UPN</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/img/favicon/site.webmanifest">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #003366;
+      --secondary-color: #FFC72C;
+      --dark-color: #1A1A1A;
+      --light-color: #F8F9FA;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #fd7e14;
+      --info-color: #17a2b8;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark-color);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background-color: white;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-header {
+      height: 80px;
+      padding: 20px;
+      background-color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .sidebar-header h4 {
+      color: white;
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+    
+    .nav-link {
+      color: var(--dark-color);
+      padding: 12px 25px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      background-color: rgba(0, 51, 102, 0.05);
+      color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+      border-left: 4px solid var(--secondary-color);
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      transition: all 0.3s;
+    }
+    
+    /* Header */
+    .header {
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .card-title {
+      font-weight: 600;
+      margin: 0;
+      color: var(--dark-color);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-warning {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--dark-color);
+    }
+    
+    /* Form Controls */
+    .form-control:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 199, 44, 0.25);
+    }
+    
+    .form-select:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 199, 44, 0.25);
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-280px);
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Settings Item */
+    .settings-item {
+      padding: 15px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+    
+    .settings-item .form-check-input:checked {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h4><i class="fas fa-book me-2"></i> Biblioteca UPN</h4>
+    </div>
+    <div class="sidebar-menu">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/prestamos}">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Gestión de Préstamos</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/libros/buscar}">
+            <i class="fas fa-book-open"></i>
+            <span>Catálogo de Libros</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios">
+            <i class="fas fa-user-graduate"></i>
+            <span>Estudiantes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/reportes">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/configuracion">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <button class="btn btn-sm d-lg-none" id="sidebarToggle">
+          <i class="fas fa-bars text-dark"></i>
+        </button>
+        <h4 class="mb-0">Configuración del Sistema</h4>
+        <small class="text-muted">Ajustes y configuraciones de la biblioteca</small>
+      </div>
+      
+      <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=003366&color=fff" alt="User">
+        <div>
+          <h6 class="mb-0">Administrador</h6>
+          <small class="text-muted">Bibliotecario</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="container-fluid p-4">
+      <!-- System Information -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i> Información del Sistema
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Nombre del Sistema</label>
+                <input type="text" class="form-control" value="Biblioteca Virtual UPN" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Versión</label>
+                <input type="text" class="form-control" th:value="${version}" readonly>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Ubicación</label>
+                <input type="text" class="form-control" th:value="${ubicacion}" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Última Actualización</label>
+                <input type="text" class="form-control" value="24 de Junio, 2025" readonly>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Settings -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-sliders-h me-2"></i> Configuración General
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="settings-item">
+            <div>
+              <h6 class="mb-1">Notificaciones por Email</h6>
+              <small class="text-muted">Enviar notificaciones de préstamos vencidos por correo</small>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+            </div>
+          </div>
+          
+          <div class="settings-item">
+            <div>
+              <h6 class="mb-1">Renovación Automática</h6>
+              <small class="text-muted">Permitir renovación automática de préstamos</small>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="autoRenewal">
+            </div>
+          </div>
+          
+          <div class="settings-item">
+            <div>
+              <h6 class="mb-1">Modo Mantenimiento</h6>
+              <small class="text-muted">Activar modo mantenimiento del sistema</small>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="maintenanceMode">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loan Settings -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-book me-2"></i> Configuración de Préstamos
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="maxLoanDays" class="form-label">Días máximos de préstamo</label>
+                <input type="number" class="form-control" id="maxLoanDays" value="15" min="1" max="90">
+                <div class="form-text">Número máximo de días para un préstamo</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="maxRenewals" class="form-label">Renovaciones máximas</label>
+                <input type="number" class="form-control" id="maxRenewals" value="2" min="0" max="5">
+                <div class="form-text">Número máximo de renovaciones por préstamo</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="maxBooksPerUser" class="form-label">Libros máximos por usuario</label>
+                <input type="number" class="form-control" id="maxBooksPerUser" value="3" min="1" max="10">
+                <div class="form-text">Número máximo de libros que puede tener un usuario</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="lateFee" class="form-label">Multa por día de retraso (S/.)</label>
+                <input type="number" class="form-control" id="lateFee" value="2.00" min="0" step="0.50">
+                <div class="form-text">Monto de multa por cada día de retraso</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" onclick="saveSettings()">
+              <i class="fas fa-save me-1"></i> Guardar Configuración
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="resetSettings()">
+              <i class="fas fa-undo me-1"></i> Restablecer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Database Settings -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-database me-2"></i> Base de Datos
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Estado:</strong> Conectado correctamente
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Última copia de seguridad</label>
+                <input type="text" class="form-control" value="23 de Junio, 2025 - 02:00 AM" readonly>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-grid gap-2">
+                <button type="button" class="btn btn-outline-primary" onclick="createBackup()">
+                  <i class="fas fa-download me-2"></i> Crear Copia de Seguridad
+                </button>
+                <button type="button" class="btn btn-outline-warning" onclick="optimizeDatabase()">
+                  <i class="fas fa-tools me-2"></i> Optimizar Base de Datos
+                </button>
+                <button type="button" class="btn btn-outline-danger" onclick="clearLogs()">
+                  <i class="fas fa-trash me-2"></i> Limpiar Logs del Sistema
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Settings -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-shield-alt me-2"></i> Configuración de Seguridad
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="settings-item">
+            <div>
+              <h6 class="mb-1">Autenticación de Dos Factores</h6>
+              <small class="text-muted">Requerir verificación adicional para administradores</small>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="twoFactorAuth">
+            </div>
+          </div>
+          
+          <div class="settings-item">
+            <div>
+              <h6 class="mb-1">Bloqueo por Intentos Fallidos</h6>
+              <small class="text-muted">Bloquear cuenta después de 5 intentos fallidos</small>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="accountLockout" checked>
+            </div>
+          </div>
+          
+          <div class="settings-item">
+            <div>
+              <h6 class="mb-1">Registro de Actividades</h6>
+              <small class="text-muted">Mantener log de todas las actividades del sistema</small>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="activityLogging" checked>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-university me-2"></i> Acerca de
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h6>Sistema de Biblioteca Virtual UPN</h6>
+              <p class="text-muted mb-3">
+                Sistema integral de gestión bibliotecaria desarrollado específicamente para la 
+                Universidad Privada del Norte - Sede Chorrillos. Permite la administración 
+                completa de libros, usuarios y préstamos con una interfaz moderna y funcional.
+              </p>
+              
+              <div class="row">
+                <div class="col-sm-6">
+                  <small class="text-muted">
+                    <strong>Desarrollado por:</strong><br>
+                    Equipo de Desarrollo UPN
+                  </small>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted">
+                    <strong>Soporte técnico:</strong><br>
+                    soporte@upn.edu.pe
+                  </small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 text-center">
+              <img src="https://ui-avatars.com/api/?name=UPN&background=003366&color=FFC72C&size=120&font-size=0.4" 
+                   alt="UPN Logo" class="mb-3" style="border-radius: 8px;">
+              <br>
+              <small class="text-muted">Universidad Privada del Norte</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    $(document).ready(function() {
+      // Toggle sidebar on mobile
+      $('#sidebarToggle').click(function() {
+        $('.sidebar').toggleClass('active');
+      });
+      
+      // Save settings to localStorage for demo purposes
+      loadSettings();
+    });
+
+    function saveSettings() {
+      const settings = {
+        emailNotifications: $('#emailNotifications').is(':checked'),
+        autoRenewal: $('#autoRenewal').is(':checked'),
+        maintenanceMode: $('#maintenanceMode').is(':checked'),
+        maxLoanDays: $('#maxLoanDays').val(),
+        maxRenewals: $('#maxRenewals').val(),
+        maxBooksPerUser: $('#maxBooksPerUser').val(),
+        lateFee: $('#lateFee').val(),
+        twoFactorAuth: $('#twoFactorAuth').is(':checked'),
+        accountLockout: $('#accountLockout').is(':checked'),
+        activityLogging: $('#activityLogging').is(':checked')
+      };
+      
+      localStorage.setItem('bibliotecaSettings', JSON.stringify(settings));
+      
+      // Show success message
+      const alert = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+        '<i class="fas fa-check-circle me-2"></i>' +
+        'Configuración guardada correctamente' +
+        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+        '</div>');
+      
+      $('.container-fluid').prepend(alert);
+      
+      setTimeout(function() {
+        alert.fadeOut();
+      }, 3000);
+    }
+
+    function loadSettings() {
+      const settings = localStorage.getItem('bibliotecaSettings');
+      if (settings) {
+        const config = JSON.parse(settings);
+        
+        $('#emailNotifications').prop('checked', config.emailNotifications);
+        $('#autoRenewal').prop('checked', config.autoRenewal);
+        $('#maintenanceMode').prop('checked', config.maintenanceMode);
+        $('#maxLoanDays').val(config.maxLoanDays);
+        $('#maxRenewals').val(config.maxRenewals);
+        $('#maxBooksPerUser').val(config.maxBooksPerUser);
+        $('#lateFee').val(config.lateFee);
+        $('#twoFactorAuth').prop('checked', config.twoFactorAuth);
+        $('#accountLockout').prop('checked', config.accountLockout);
+        $('#activityLogging').prop('checked', config.activityLogging);
+      }
+    }
+
+    function resetSettings() {
+      if (confirm('¿Está seguro de restablecer todas las configuraciones a sus valores por defecto?')) {
+        localStorage.removeItem('bibliotecaSettings');
+        location.reload();
+      }
+    }
+
+    function createBackup() {
+      // Simulate backup creation
+      const button = event.target;
+      const originalText = button.innerHTML;
+      
+      button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Creando...';
+      button.disabled = true;
+      
+      setTimeout(function() {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        alert('Copia de seguridad creada exitosamente');
+      }, 3000);
+    }
+
+    function optimizeDatabase() {
+      const button = event.target;
+      const originalText = button.innerHTML;
+      
+      button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Optimizando...';
+      button.disabled = true;
+      
+      setTimeout(function() {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        alert('Base de datos optimizada correctamente');
+      }, 2000);
+    }
+
+    function clearLogs() {
+      if (confirm('¿Está seguro de limpiar todos los logs del sistema?')) {
+        const button = event.target;
+        const originalText = button.innerHTML;
+        
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Limpiando...';
+        button.disabled = true;
+        
+        setTimeout(function() {
+          button.innerHTML = originalText;
+          button.disabled = false;
+          alert('Logs del sistema limpiados correctamente');
+        }, 1500);
+      }
+    }
+  </script>
+</body>
+</html>

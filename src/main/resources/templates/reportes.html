@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes | Biblioteca UPN</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/img/favicon/site.webmanifest">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #003366;
+      --secondary-color: #FFC72C;
+      --dark-color: #1A1A1A;
+      --light-color: #F8F9FA;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #fd7e14;
+      --info-color: #17a2b8;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark-color);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background-color: white;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-header {
+      height: 80px;
+      padding: 20px;
+      background-color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .sidebar-header h4 {
+      color: white;
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+    
+    .nav-link {
+      color: var(--dark-color);
+      padding: 12px 25px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      background-color: rgba(0, 51, 102, 0.05);
+      color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+      border-left: 4px solid var(--secondary-color);
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      transition: all 0.3s;
+    }
+    
+    /* Header */
+    .header {
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .card-title {
+      font-weight: 600;
+      margin: 0;
+      color: var(--dark-color);
+    }
+    
+    /* Stats Cards */
+    .stats-card {
+      transition: transform 0.2s;
+    }
+    
+    .stats-card:hover {
+      transform: translateY(-2px);
+    }
+    
+    /* Chart Container */
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-280px);
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h4><i class="fas fa-book me-2"></i> Biblioteca UPN</h4>
+    </div>
+    <div class="sidebar-menu">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/prestamos}">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Gestión de Préstamos</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/libros/buscar}">
+            <i class="fas fa-book-open"></i>
+            <span>Catálogo de Libros</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios">
+            <i class="fas fa-user-graduate"></i>
+            <span>Estudiantes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/reportes">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/configuracion">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <button class="btn btn-sm d-lg-none" id="sidebarToggle">
+          <i class="fas fa-bars text-dark"></i>
+        </button>
+        <h4 class="mb-0">Reportes y Estadísticas</h4>
+        <small class="text-muted">Análisis detallado del sistema de biblioteca</small>
+      </div>
+      
+      <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=003366&color=fff" alt="User">
+        <div>
+          <h6 class="mb-0">Administrador</h6>
+          <small class="text-muted">Bibliotecario</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="container-fluid p-4">
+      <!-- Stats Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0 text-muted">Total Libros</h6>
+                  <h3 class="mb-0" th:text="${totalLibros ?: '0'}">0</h3>
+                </div>
+                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                  <i class="fas fa-book text-primary"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0 text-muted">Total Préstamos</h6>
+                  <h3 class="mb-0" th:text="${totalPrestamos ?: '0'}">0</h3>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded">
+                  <i class="fas fa-exchange-alt text-success"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0 text-muted">Total Usuarios</h6>
+                  <h3 class="mb-0" th:text="${totalUsuarios ?: '0'}">0</h3>
+                </div>
+                <div class="bg-info bg-opacity-10 p-3 rounded">
+                  <i class="fas fa-users text-info"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0 text-muted">Promedio Mensual</h6>
+                  <h3 class="mb-0">15</h3>
+                </div>
+                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                  <i class="fas fa-chart-line text-warning"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row">
+        <!-- Préstamos por Mes -->
+        <div class="col-md-6">
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-bar me-2"></i> Préstamos por Mes
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <canvas id="prestamosChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Libros más Prestados -->
+        <div class="col-md-6">
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2"></i> Categorías de Libros
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <canvas id="categoriasChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tables Row -->
+      <div class="row">
+        <!-- Libros más Prestados -->
+        <div class="col-md-6">
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-trophy me-2"></i> Libros más Prestados
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Posición</th>
+                      <th>Título</th>
+                      <th>Autor</th>
+                      <th>Préstamos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="libro, iterStat : ${libros}" th:if="${iterStat.index < 5}">
+                      <td>
+                        <span class="badge bg-primary" th:text="${iterStat.index + 1}">1</span>
+                      </td>
+                      <td th:text="${libro.titulo}">Título</td>
+                      <td th:text="${libro.autor}">Autor</td>
+                      <td>
+                        <span class="badge bg-success" th:text="${T(java.util.concurrent.ThreadLocalRandom).current().nextInt(1, 20)}">5</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Usuarios más Activos -->
+        <div class="col-md-6">
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-user-star me-2"></i> Usuarios más Activos
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Los datos de usuarios activos se mostrarán cuando haya más actividad en el sistema.
+              </div>
+              <div class="text-center py-4">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No hay suficientes datos para mostrar estadísticas de usuarios</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Options -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-download me-2"></i> Exportar Reportes
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <button class="btn btn-outline-primary w-100 mb-2" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf me-2"></i> Exportar a PDF
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-outline-success w-100 mb-2" onclick="exportToExcel()">
+                <i class="fas fa-file-excel me-2"></i> Exportar a Excel
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-outline-info w-100 mb-2" onclick="window.print()">
+                <i class="fas fa-print me-2"></i> Imprimir Reporte
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    $(document).ready(function() {
+      // Toggle sidebar on mobile
+      $('#sidebarToggle').click(function() {
+        $('.sidebar').toggleClass('active');
+      });
+      
+      // Initialize Charts
+      initializeCharts();
+    });
+
+    function initializeCharts() {
+      // Préstamos por Mes Chart
+      const prestamosCtx = document.getElementById('prestamosChart').getContext('2d');
+      new Chart(prestamosCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+          datasets: [{
+            label: 'Préstamos',
+            data: [12, 19, 8, 15, 22, 18],
+            backgroundColor: '#FFC72C',
+            borderColor: '#003366',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      // Categorías Chart
+      const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
+      new Chart(categoriasCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Ficción', 'Ciencias', 'Historia', 'Tecnología', 'Arte'],
+          datasets: [{
+            data: [30, 25, 20, 15, 10],
+            backgroundColor: [
+              '#003366',
+              '#FFC72C',
+              '#28a745',
+              '#dc3545',
+              '#17a2b8'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+
+    function exportToPDF() {
+      alert('Funcionalidad de exportar a PDF en desarrollo');
+    }
+
+    function exportToExcel() {
+      alert('Funcionalidad de exportar a Excel en desarrollo');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionar Préstamos | Biblioteca UPN</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/img/favicon/site.webmanifest">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables@1.13.4/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #003366;
+      --secondary-color: #FFC72C;
+      --dark-color: #1A1A1A;
+      --light-color: #F8F9FA;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #fd7e14;
+      --info-color: #17a2b8;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark-color);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background-color: white;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-header {
+      height: 80px;
+      padding: 20px;
+      background-color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .sidebar-header h4 {
+      color: white;
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+    
+    .nav-link {
+      color: var(--dark-color);
+      padding: 12px 25px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      background-color: rgba(0, 51, 102, 0.05);
+      color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+      border-left: 4px solid var(--secondary-color);
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      transition: all 0.3s;
+    }
+    
+    /* Header */
+    .header {
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .card-title {
+      font-weight: 600;
+      margin: 0;
+      color: var(--dark-color);
+    }
+    
+    /* Tables */
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table thead th {
+      background-color: var(--light-color);
+      border-bottom: 2px solid #eee;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(0, 0, 0, 0.01);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-warning {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--dark-color);
+    }
+    
+    /* Form Controls */
+    .form-control:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 199, 44, 0.25);
+    }
+    
+    .form-select:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 199, 44, 0.25);
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-280px);
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    /* Loan Item */
+    .loan-item {
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: white;
+      transition: all 0.2s;
+    }
+    
+    .loan-item:hover {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .loan-status {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h4><i class="fas fa-book me-2"></i> Biblioteca UPN</h4>
+    </div>
+    <div class="sidebar-menu">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" th:href="@{/prestamos}">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Gestión de Préstamos</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/libros/buscar}">
+            <i class="fas fa-book-open"></i>
+            <span>Catálogo de Libros</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios">
+            <i class="fas fa-user-graduate"></i>
+            <span>Estudiantes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/reportes">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/configuracion">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <button class="btn btn-sm d-lg-none" id="sidebarToggle">
+          <i class="fas fa-bars text-dark"></i>
+        </button>
+        <h4 class="mb-0">Gestionar Préstamos</h4>
+        <small class="text-muted">Administra los préstamos de libros de la biblioteca</small>
+      </div>
+      
+      <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=003366&color=fff" alt="User">
+        <div>
+          <h6 class="mb-0">Administrador</h6>
+          <small class="text-muted">Bibliotecario</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="container-fluid p-4">
+      <!-- Alerts -->
+      <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${param.error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      
+      <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${param.success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Add Loan Form -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-plus me-2"></i> Agregar Nuevo Préstamo
+          </h5>
+        </div>
+        <div class="card-body">
+          <form th:action="@{/prestamos/guardar}" method="post">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="libroId" class="form-label">Seleccionar Libro *</label>
+                  <select name="libroId" class="form-select" required>
+                    <option value="" disabled selected>Seleccione un libro</option>
+                    <option th:each="libro : ${libros}" 
+                            th:value="${libro.id}" 
+                            th:text="${libro.titulo + ' - ' + libro.autor}"
+                            th:disabled="${!libro.disponible}">
+                    </option>
+                  </select>
+                  <div class="form-text">Solo se muestran libros disponibles</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="usuarioId" class="form-label">Seleccionar Usuario *</label>
+                  <select name="usuarioId" class="form-select" required>
+                    <option value="" disabled selected>Seleccione un usuario</option>
+                    <option th:each="usuario : ${usuarios}" 
+                            th:value="${usuario.id}" 
+                            th:text="${usuario.nombre + ' (' + usuario.email + ')'}">
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="fechaPrestamo" class="form-label">Fecha de Préstamo *</label>
+                  <input type="date" name="fechaPrestamo" class="form-control" required 
+                         th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="fechaDevolucion" class="form-label">Fecha de Devolución *</label>
+                  <input type="date" name="fechaDevolucion" class="form-control" required />
+                  <div class="form-text">Fecha límite para devolver el libro</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Agregar Préstamo
+              </button>
+              <button type="reset" class="btn btn-outline-secondary">
+                <i class="fas fa-undo me-1"></i> Limpiar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Loans List -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-list me-2"></i> Préstamos Actuales 
+            <span class="badge bg-primary ms-2" th:text="${#lists.size(prestamos)}">0</span>
+          </h5>
+        </div>
+        <div class="card-body">
+          <div th:if="${!#lists.isEmpty(prestamos)}">
+            <div class="row">
+              <div th:each="prestamo : ${prestamos}" class="col-12">
+                <div class="loan-item">
+                  <div class="row align-items-center">
+                    <div class="col-md-4">
+                      <h6 class="mb-1" th:text="${prestamo.libro.titulo}">Título del Libro</h6>
+                      <small class="text-muted" th:text="${prestamo.libro.autor}">Autor</small>
+                    </div>
+                    <div class="col-md-3">
+                      <strong th:text="${prestamo.usuario.nombre}">Usuario</strong><br>
+                      <small class="text-muted" th:text="${prestamo.usuario.email}">Email</small>
+                    </div>
+                    <div class="col-md-2">
+                      <div class="loan-status">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        <span th:text="${prestamo.fechaPrestamoStr ?: prestamo.fechaPrestamo}">Fecha Préstamo</span>
+                      </div>
+                      <div class="loan-status text-muted">
+                        <i class="fas fa-calendar-check me-1"></i>
+                        <span th:text="${prestamo.fechaDevolucionStr ?: prestamo.fechaDevolucion}">Fecha Devolución</span>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <!-- Status Badge -->
+                      <span th:if="${prestamo.fechaDevolucion != null and prestamo.fechaDevolucion.isBefore(T(java.time.LocalDate).now())}" 
+                            class="badge bg-danger">
+                        <i class="fas fa-exclamation-triangle me-1"></i> Vencido
+                      </span>
+                      <span th:if="${prestamo.fechaDevolucion != null and !prestamo.fechaDevolucion.isBefore(T(java.time.LocalDate).now())}" 
+                            class="badge bg-success">
+                        <i class="fas fa-check-circle me-1"></i> Activo
+                      </span>
+                      <span th:if="${prestamo.fechaDevolucion == null}" 
+                            class="badge bg-warning text-dark">
+                        <i class="fas fa-clock me-1"></i> Pendiente
+                      </span>
+                    </div>
+                    <div class="col-md-1">
+                      <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <a class="dropdown-item" th:href="@{/prestamos/editar/{id}(id=${prestamo.id})}">
+                              <i class="fas fa-edit me-2"></i> Editar
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item text-danger" th:href="@{/prestamos/eliminar/{id}(id=${prestamo.id})}" 
+                               onclick="return confirm('¿Está seguro de eliminar este préstamo?')">
+                              <i class="fas fa-trash me-2"></i> Eliminar
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Empty state -->
+          <div th:if="${#lists.isEmpty(prestamos)}" class="empty-state">
+            <i class="fas fa-book"></i>
+            <h5>No hay préstamos registrados</h5>
+            <p class="text-muted">Agregue el primer préstamo usando el formulario de arriba</p>
+            <a th:href="@{/libros/buscar}" class="btn btn-primary">
+              <i class="fas fa-book me-1"></i> Ver Libros Disponibles
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Stats -->
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2"></i> Estadísticas de Préstamos
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Total Préstamos:</span>
+                <strong class="text-primary" th:text="${#lists.size(prestamos)}">0</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Préstamos Activos:</span>
+                <strong class="text-success">0</strong>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Préstamos Vencidos:</span>
+                <strong class="text-danger">0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i> Alertas
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-warning mb-2">
+                <i class="fas fa-clock me-1"></i> <strong>0 préstamos</strong> vencen hoy
+              </div>
+              <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle me-1"></i> Sistema funcionando correctamente
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="card fade-in">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-tools me-2"></i> Acciones Rápidas
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a th:href="@{/libros/buscar}" class="btn btn-outline-primary">
+                  <i class="fas fa-book me-2"></i> Gestionar Libros
+                </a>
+                <a href="/usuarios" class="btn btn-outline-info">
+                  <i class="fas fa-users me-2"></i> Gestionar Usuarios
+                </a>
+                <a href="/reportes" class="btn btn-outline-warning">
+                  <i class="fas fa-chart-bar me-2"></i> Ver Reportes
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.4/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    $(document).ready(function() {
+      // Toggle sidebar on mobile
+      $('#sidebarToggle').click(function() {
+        $('.sidebar').toggleClass('active');
+      });
+      
+      // Auto-hide alerts after 5 seconds
+      setTimeout(function() {
+        $('.alert').fadeOut('slow');
+      }, 5000);
+
+      // Set default return date (15 days from loan date)
+      $('input[name="fechaPrestamo"]').on('change', function() {
+        var loanDate = new Date($(this).val());
+        if (loanDate) {
+          loanDate.setDate(loanDate.getDate() + 15);
+          var returnDate = loanDate.toISOString().split('T')[0];
+          $('input[name="fechaDevolucion"]').val(returnDate);
+        }
+      });
+
+      // Form validation
+      $('form').on('submit', function(e) {
+        var libroId = $('select[name="libroId"]').val();
+        var usuarioId = $('select[name="usuarioId"]').val();
+        var fechaPrestamo = $('input[name="fechaPrestamo"]').val();
+        var fechaDevolucion = $('input[name="fechaDevolucion"]').val();
+
+        if (!libroId || !usuarioId || !fechaPrestamo || !fechaDevolucion) {
+          e.preventDefault();
+          alert('Por favor, complete todos los campos obligatorios');
+          return false;
+        }
+
+        // Validate dates
+        var loanDate = new Date(fechaPrestamo);
+        var returnDate = new Date(fechaDevolucion);
+
+        if (returnDate <= loanDate) {
+          e.preventDefault();
+          alert('La fecha de devolución debe ser posterior a la fecha de préstamo');
+          return false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
